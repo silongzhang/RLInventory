@@ -124,14 +124,15 @@ class ReplayBuffer(object):
 
 def train(env, nets, replayBuffer, batch_size, episodes):
     try:
+        profits = []
         epsilon = 1.0
-        decayEpsilon = 0.9999
+        decayEpsilon = 0.99
         
         optimizers = []
         for net in nets:
             optimizers.append(optim.Adam(net.parameters()))
         
-        for episode in range(episodes):
+        for episode in range(1, episodes + 1):
             epsilon *= decayEpsilon
             profit = 0
             episode_loss = 0
@@ -163,15 +164,18 @@ def train(env, nets, replayBuffer, batch_size, episodes):
                     optimizers[t - 1].step()
 
                     current_state = next_state
+            profits.append(profit)
             if episode % 100 == 0:
-                print('episode = {}, profit = {}, episode_loss = {}'.format(episode, profit, episode_loss))
-        print('episode = {}, profit = {}, episode_loss = {}'.format(episode, profit, episode_loss))
+                print('episode = {}, average profit = {}, loss = {}'\
+                      .format(episode, np.mean(profits), episode_loss))
+                profits = []
+                epsilon = 1.0
     except:
         utils.printErrorAndExit('train')
 
 def test(env, nets, episodes, epsilon):
     profits = []
-    for episode in range(episodes):
+    for episode in range(1, episodes + 1):
         profit = 0
         current_state = utils.State(0, np.zeros(N))
         
