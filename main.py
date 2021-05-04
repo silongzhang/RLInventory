@@ -9,7 +9,7 @@ def run(InFile, method):
         if method == 'DP':
             value = DP.DPMethod(InFile)
         elif method == 'DQN':
-            value = DQN.DQNMethod(InFile, 1, 1024, int(1e4), int(1e2))
+            value = DQN.DQNMethod(InFile, 8, 1024, int(1e4), int(1e2))
         else:
             raise Exception
         print('value = {}'.format(value))

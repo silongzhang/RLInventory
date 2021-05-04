@@ -152,6 +152,7 @@ def train(env, nets, replayBuffer, batch_size, episodes):
                     loss.backward()
                     optimizers[t - 1].step()
                 else:
+                    '''
                     action = act(env, nets, t, current_state, epsilon)
                     next_state, reward, done = env.step(t, current_state, action)
                     profit += reward
@@ -164,6 +165,28 @@ def train(env, nets, replayBuffer, batch_size, episodes):
                     optimizers[t - 1].step()
 
                     current_state = next_state
+                    '''
+                    action = act(env, nets, t, current_state, epsilon)
+                    next_state, reward, done = env.step(t, current_state, action)
+                    profit += reward
+                    replayBuffer.push(t, current_state, action, next_state, reward, done)
+                    current_state = next_state
+
+                    if replayBuffer.len(t) > batch_size:
+                        current_states, actions, next_states, rewards, dones = replayBuffer.sample(t, batch_size)
+                        qOld = []
+                        qNew = []
+                        for i in range(batch_size):
+                            qOld.append(actionValue(nets, t, current_states[i], actions[i]))
+                            qNew.append(torch.Tensor([rewards[i]]) + stateValue(env, nets, t + 1, next_states[i]))
+                        qOld = torch.stack(qOld, 0)
+                        qNew = torch.stack(qNew, 0)
+                        loss = criterion(qOld, qNew)
+                        episode_loss += loss
+                        optimizers[t - 1].zero_grad()
+                        loss.backward()
+                        optimizers[t - 1].step()
+
             profits.append(profit)
             if episode % 100 == 0:
                 print('episode = {}, average profit = {}, loss = {}'\
