@@ -190,7 +190,7 @@ def train(env, nets, replayBuffer, batch_size, episodes_train, episodes_test, st
             if episode % 100 == 0:
                 print('episode = {} \t time = {:.2f} \t loss = {:.2f} \t average training profit = {} \t average testing profit = {}'\
                           .format(episode, utils.runTime(startTime), episode_loss, \
-                                  np.mean(profits), test(env, nets, episodes_test, 0)))
+                                  np.mean(profits), test(env, nets, episodes_test, 0)), flush = True)
                 profits = []
                 epsilon = 1.0
     except:

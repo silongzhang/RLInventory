@@ -22,4 +22,4 @@ def main(argv):
 if __name__ == '__main__':
     main(sys.argv)
 
-# example: python main.py DQN data//instance_1.xlsx 8 1024 10000 100
+# example: python main.py DQN data//1//instance_1.xlsx 8 1024 20000 100
