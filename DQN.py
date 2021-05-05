@@ -122,7 +122,7 @@ class ReplayBuffer(object):
     def len(self, t):
         return len(self.buffers[t - 1])
 
-def train(env, nets, replayBuffer, batch_size, episodes):
+def train(env, nets, replayBuffer, batch_size, episodes_train, episodes_test, startTime):
     try:
         profits = []
         epsilon = 1.0
@@ -132,7 +132,7 @@ def train(env, nets, replayBuffer, batch_size, episodes):
         for net in nets:
             optimizers.append(optim.Adam(net.parameters()))
         
-        for episode in range(1, episodes + 1):
+        for episode in range(episodes_train + 1):
             epsilon *= decayEpsilon
             profit = 0
             episode_loss = 0
@@ -186,11 +186,11 @@ def train(env, nets, replayBuffer, batch_size, episodes):
                         optimizers[t - 1].zero_grad()
                         loss.backward()
                         optimizers[t - 1].step()
-
             profits.append(profit)
             if episode % 100 == 0:
-                print('episode = {}, average profit = {}, loss = {}'\
-                      .format(episode, np.mean(profits), episode_loss))
+                print('episode = {} \t time = {:.2f} \t loss = {:.2f} \t average training profit = {} \t average testing profit = {}'\
+                          .format(episode, utils.runTime(startTime), episode_loss, \
+                                  np.mean(profits), test(env, nets, episodes_test, 0)))
                 profits = []
                 epsilon = 1.0
     except:
@@ -214,7 +214,7 @@ def test(env, nets, episodes, epsilon):
         profits.append(profit)
     return np.mean(profits)
 
-def DQNMethod(InFile, batch_size, buffer_size, episodes_train, episodes_test):
+def DQNMethod(InFile, batch_size, buffer_size, episodes_train, episodes_test, startTime):
     parameterDP, pdf, rf, demand = DP.readData(InFile)
     global T, N
     T = parameterDP.T
@@ -224,7 +224,7 @@ def DQNMethod(InFile, batch_size, buffer_size, episodes_train, episodes_test):
     replayBuffer = ReplayBuffer(buffer_size)
     
     print('Training ...')
-    train(env, nets, replayBuffer, batch_size, episodes_train)
+    train(env, nets, replayBuffer, batch_size, episodes_train, episodes_test, startTime)
     
     print('Testing ...')
     return test(env, nets, episodes_test, 0)

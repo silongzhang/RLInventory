@@ -2,6 +2,7 @@
 
 import numpy as np
 import sys
+import time
 import copy
 
 PPM = 1e-6
@@ -9,6 +10,9 @@ PPM = 1e-6
 def printErrorAndExit(info):
     print('Error: ' + info)
     sys.exit(1)
+
+def runTime(start):
+    return time.process_time() - start
 
 def realNumEqual(lhs, rhs, precision):
     return abs(lhs - rhs) < precision
